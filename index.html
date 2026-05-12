@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Mine & Maintenance Operations Dashboard</title>
+    <!-- Google Fonts & simple styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <!-- Font Awesome 6 (free icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #f0f2f5;
+            font-family: 'Inter', sans-serif;
+            padding: 30px 20px;
+            color: #1e293b;
+        }
+
+        .dashboard-container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* header */
+        .page-header {
+            margin-bottom: 28px;
+        }
+        .page-header h1 {
+            font-size: 1.9rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #1e3c2c, #2a5e3a);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.3px;
+        }
+        .page-header p {
+            color: #475569;
+            font-weight: 500;
+            margin-top: 6px;
+        }
+
+        /* card style */
+        .card {
+            background: #ffffff;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.03), 0 2px 6px rgba(0,0,0,0.05);
+            margin-bottom: 40px;
+            overflow: hidden;
+            transition: all 0.2s;
+            border: 1px solid #e9eef3;
+        }
+        .card-header {
+            background: #f8fafc;
+            padding: 18px 28px;
+            border-bottom: 2px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .card-header i {
+            font-size: 1.8rem;
+            color: #2c6e3c;
+        }
+        .card-header h2 {
+            font-size: 1.55rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .card-body {
+            padding: 26px 28px;
+        }
+
+        /* form grids */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px 32px;
+            margin-bottom: 32px;
+            background: #fefefe;
+            padding: 18px 0;
+            border-bottom: 1px solid #eef2f8;
+        }
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .field label {
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #54708f;
+        }
+        .field input, .field select, .field textarea {
+            padding: 10px 14px;
+            border-radius: 16px;
+            border: 1px solid #cfdfed;
+            background: white;
+            font-family: 'Inter', monospace;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .field input:focus, .field select:focus {
+            outline: none;
+            border-color: #2c7a4a;
+            box-shadow: 0 0 0 3px rgba(44,122,74,0.1);
+        }
+
+        /* tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+            margin: 20px 0 16px;
+            overflow-x: auto;
+            display: block;
+        }
+        .data-table thead tr {
+            background: #f1f5f9;
+            border-radius: 20px;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 12px 8px;
+            font-weight: 700;
+            color: #1e3a5f;
+            border-bottom: 2px solid #e0e7ef;
+        }
+        .data-table td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #edf2f7;
+            vertical-align: middle;
+        }
+        .action-btn {
+            background: none;
+            border: none;
+            color: #b91c1c;
+            cursor: pointer;
+            font-size: 1.1rem;
+            margin: 0 4px;
+            transition: 0.1s;
+        }
+        .action-btn:hover {
+            color: #7f1a1a;
+            transform: scale(1.05);
+        }
+        .add-row-btn {
+            background: #eef2ff;
+            border: 1px dashed #6688aa;
+            padding: 8px 16px;
+            border-radius: 60px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #1e4a76;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+        .add-row-btn:hover {
+            background: #e0e7ff;
+        }
+        hr {
+            margin: 28px 0 10px;
+            border-color: #e9eef3;
+        }
+        .sub-section-title {
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin: 28px 0 12px 0;
+            padding-left: 6px;
+            border-left: 5px solid #2c7a4a;
+            color: #1f3b4c;
+        }
+        .badge-time {
+            font-family: monospace;
+            background: #f3f6fc;
+            padding: 4px 8px;
+            border-radius: 14px;
+        }
+        .remark-area {
+            width: 100%;
+            margin-top: 12px;
+        }
+        @media (max-width: 760px) {
+            .card-body {
+                padding: 18px;
+            }
+            .data-table th, .data-table td {
+                font-size: 0.75rem;
+                padding: 6px 4px;
+            }
+        }
+        button[type="submit"] {
+            background: #1f5e3a;
+            border: none;
+            padding: 12px 26px;
+            border-radius: 40px;
+            font-weight: 600;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.2s;
+        }
+        button[type="submit"]:hover {
+            background: #0f462b;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard-container">
+    <div class="page-header">
+        <h1><i class="fas fa-hard-hat"></i> Mine & Maintenance Integrated Log</h1>
+        <p>Activity recording | Mines + Maintenance combined | Anakapalli operations</p>
+    </div>
+
+    <form id="masterForm">
+        <!-- ======================== PART 1: MINES SECTION ======================== -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-mountain"></i>
+                <h2>Mines Operations – Anakapalli</h2>
+            </div>
+            <div class="card-body">
+                <!-- basic activity header -->
+                <div class="info-grid">
+                    <div class="field"><label>Activity Date</label><input type="date" id="activityDate" value="2026-05-12"></div>
+                    <div class="field"><label>Location Name</label><input type="text" id="locationName" value="AG - Anakapalli"></div>
+                    <div class="field"><label>Shift Name</label><input type="text" id="shiftName" value="Day Shift"></div>
+                    <div class="field"><label>Shift Time</label><input type="text" id="shiftTime" value="08:00 AM To 08:00 PM"></div>
+                </div>
+
+                <!-- Input / Output / Resource row (simple) -->
+                <div class="info-grid">
+                    <div class="field"><label>Input</label><input type="text" id="inputVal" placeholder="e.g., ROM"></div>
+                    <div class="field"><label>Output</label><input type="text" id="outputVal" placeholder="MT / Volume"></div>
+                    <div class="field"><label>Resource</label><input type="text" id="resourceVal" placeholder="Equipment/Manpower"></div>
+                    <div class="field"><label>Maintenance</label><input type="text" id="maintenanceVal" placeholder="Remarks"></div>
+                    <div class="field"><label>Development</label><input type="text" id="developmentVal" placeholder="Progress"></div>
+                    <div class="field"><label>Boulder Transfer</label><input type="text" id="boulderTransferVal" placeholder="Qty"></div>
+                    <div class="field"><label>Stock</label><input type="text" id="stockVal" placeholder="ROM Stock"></div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="field"><label>No Of Compressor</label><input type="number" id="noCompressor" value="2"></div>
+                    <div class="field"><label>No. Of Holes</label><input type="number" id="noHoles" value="45"></div>
+                    <div class="field"><label>Depth (m)</label><input type="text" id="depthVal" placeholder="m"></div>
+                    <div class="field"><label>Total Feet</label><input type="text" id="totalFeet" placeholder="feet"></div>
+                    <div class="field"><label>No. Of Tippers</label><input type="number" id="noTippers" value="8"></div>
+                    <div class="field"><label>No. Of Excavator</label><input type="number" id="noExcavator" value="3"></div>
+                    <div class="field"><label>No Of NMR</label><input type="number" id="noNMR" value="2"></div>
+                    <div class="field"><label>No Of Breakers</label><input type="number" id="noBreakers" value="4"></div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="field"><label>Breaking Hrs (HH:MM)</label><input type="text" id="breakingHrs" placeholder="02:30"></div>
+                    <div class="field"><label>Work Details</label><input type="text" id="workDetails" placeholder="Top Bench"></div>
+                    <div class="field"><label>Start Hrs</label><input type="text" id="startHrs" placeholder="--:--" value="08:00"></div>
+                    <div class="field"><label>End Hrs</label><input type="text" id="endHrs" placeholder="--:--" value="20:00"></div>
+                    <div class="field"><label>Total Work Hrs</label><input type="text" id="totalWorkHrs" placeholder="HH:MM" value="12:00"></div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="field"><label>Work Location</label><input type="text" id="workLocation" placeholder="Bench no"></div>
+                    <div class="field"><label>Work Area Length & Width</label><input type="text" id="workAreaDim" placeholder="e.g., 50m x 30m"></div>
+                    <div class="field"><label>Work Area</label><input type="text" id="workArea" placeholder="sqm"></div>
+                </div>
+
+                <!-- uploads -->
+                <div class="info-grid">
+                    <div class="field"><label>Upload Before Opn Copy</label><input type="file" accept="image/*,pdf"></div>
+                    <div class="field"><label>Upload After Opn Copy</label><input type="file"></div>
+                    <div class="field"><label>Upload Planning Copy</label><input type="file"></div>
+                </div>
+                <div class="field"><label>Activity Remarks</label><textarea rows="2" class="remark-area" id="activityRemarks" placeholder="Any remarks..."></textarea></div>
+
+                <!-- Boulder Output Table -->
+                <div class="sub-section-title"><i class="fas fa-cubes"></i> Boulder Output</div>
+                <table class="data-table" id="boulderTable">
+                    <thead><tr><th>Sr. No.</th><th>Size</th><th>Qty (MT)</th><th>Recovery (%)</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addBoulderBtn"><i class="fas fa-plus-circle"></i> Add Boulder Row</button>
+
+                <!-- Breaking Output -->
+                <div class="sub-section-title mt-4"><i class="fas fa-gavel"></i> Breaking Output</div>
+                <div class="info-grid">
+                    <div class="field"><label>Qty (MT)</label><input type="number" id="breakingQty" value="1240"></div>
+                    <div class="field"><label>Breaking (%)</label><input type="text" id="breakingPercent" value="85%"></div>
+                    <div class="field"><label>Hours (HH:MM)</label><input type="text" id="breakingHoursOut" value="06:30"></div>
+                </div>
+
+                <!-- Compressor Details (resource in mines) -->
+                <div class="sub-section-title"><i class="fas fa-compress-alt"></i> Compressor Details</div>
+                <table class="data-table" id="compressorTable">
+                    <thead><tr><th>Sr. No.</th><th>Vendor Name</th><th>Compressor</th><th>Working Output</th><th>Purpose</th><th>No Of Hole</th><th>Total Feet</th><th>Depth</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addCompressorBtn"><i class="fas fa-plus"></i> Add Compressor</button>
+
+                <!-- Blasting Material Details -->
+                <div class="sub-section-title"><i class="fas fa-dynamite"></i> Blasting Material Details</div>
+                <table class="data-table" id="blastingMaterialTable">
+                    <thead><tr><th>Sr. No.</th><th>Material</th><th>Opening Qty</th><th>Used Qty</th><th>Balance Qty</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addMaterialBtn">+ Add Material Row</button>
+
+                <!-- Equipment Details -->
+                <div class="sub-section-title"><i class="fas fa-truck-moving"></i> Equipment Details</div>
+                <table class="data-table" id="equipmentTable">
+                    <thead><tr><th>Sr. No.</th><th>Equipment</th><th>Purpose</th><th>Used For</th><th>From</th><th>To</th><th>Idle(HH:MM)</th><th>Breakdown(HH:MM)</th><th>Total(HH:MM)</th><th>Fuel(Ltr)</th><th>Start HMR</th><th>End HMR</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addEquipmentBtn">+ Add Equipment</button>
+
+                <!-- Labour Details -->
+                <div class="sub-section-title"><i class="fas fa-users"></i> Labour Details</div>
+                <div class="info-grid">
+                    <div class="field"><label>Labour Count / Type</label><input type="text" placeholder="e.g., HEMM Operators: 12, Breakers: 6" style="width:100%"></div>
+                </div>
+                <textarea rows="2" placeholder="Labour details remarks (names, shifts)"></textarea>
+            </div>
+        </div>
+
+        <!-- ======================== PART 2: MAINTENANCE SECTION ======================== -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-tools"></i>
+                <h2>Maintenance & Asset Tracking</h2>
+            </div>
+            <div class="card-body">
+                <!-- Maintenance Details -->
+                <div class="sub-section-title">Maintenance Details (Asset Hours)</div>
+                <table class="data-table" id="maintenanceTable">
+                    <thead><tr><th>Sr. No.</th><th>Asset Type</th><th>Asset Name</th><th>From Hrs</th><th>To Hrs</th><th>Total Hrs</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addMaintBtn">+ Add Maintenance Row</button>
+
+                <!-- Tipper Details -->
+                <div class="sub-section-title">Tipper Details (Breakdown & KM)</div>
+                <table class="data-table" id="tipperDetailsTable">
+                    <thead><tr><th>Sr. No.</th><th>Tipper</th><th>Breakdown Status</th><th>Start KMR</th><th>End KMR</th><th>Exp. Ready Date</th><th>Exp. Ready Time</th><th>Maint. Incharge</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addTipperBtn">+ Add Tipper</button>
+
+                <!-- Boulder Transfer Details (Maint also includes transfer tracking) -->
+                <div class="sub-section-title">Boulder Transfer Details</div>
+                <table class="data-table" id="boulderTransferTable">
+                    <thead><tr><th>Sr. No.</th><th>Tipper Name</th><th>No of Trips</th><th>Qty (MT)</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addBoulderTransferBtn">+ Add Transfer</button>
+
+                <!-- Stock Details final -->
+                <div class="sub-section-title">Stock Details (Boulder Size wise)</div>
+                <table class="data-table" id="stockDetailsTable">
+                    <thead><tr><th>Sr. No.</th><th>Boulder Size</th><th>Opening</th><th>Production</th><th>Dispatch</th><th>Closing</th><th>Closing As Per Surveyor/Physical</th><th>Gap</th><th>Action</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+                <button type="button" class="add-row-btn" id="addStockRowBtn">+ Add Stock Row</button>
+            </div>
+        </div>
+
+        <!-- submit button preview -->
+        <div style="display: flex; justify-content: flex-end; gap: 16px;">
+            <button type="button" id="previewBtn"><i class="fas fa-eye"></i> Preview Data (Console)</button>
+            <button type="submit"><i class="fas fa-save"></i> Submit Integrated Report</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    // Helper: generate unique ID for table rows (not mandatory but dynamic)
+    function addRowWithControls(tableId, tbodyRef, defaultValues = [], columnsCount, mapFn) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        const rowCount = tbody.children.length;
+        const newRow = document.createElement('tr');
+        let html = `<td>${rowCount+1}</td>`;
+        for(let i=0; i<columnsCount-1; i++) {
+            let val = (defaultValues[i] !== undefined) ? defaultValues[i] : '';
+            html += `<td><input type="text" style="width:95%; min-width:70px" value="${val}" placeholder="..."></td>`;
+        }
+        html += `<td><button type="button" class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash-alt"></i></button></td>`;
+        newRow.innerHTML = html;
+        tbody.appendChild(newRow);
+        reindexTableRows(tableId);
+    }
+
+    function reindexTableRows(tableId) {
+        const tbody = document.querySelector(`#${tableId} tbody`);
+        if(!tbody) return;
+        Array.from(tbody.children).forEach((row, idx) => {
+            if(row.cells[0]) row.cells[0].innerText = idx+1;
+        });
+    }
+
+    // seed tables with initial data
+    function seedBoulder() {
+        const tbody = document.querySelector('#boulderTable tbody');
+        tbody.innerHTML = '';
+        const defaults = [['>300 MM', '125', '92'], ['100-300 MM', '80', '88']];
+        defaults.forEach(def => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${tbody.children.length+1}</td><td><input value="${def[0]}"></td><td><input value="${def[1]}"></td><td><input value="${def[2]}"></td><td><button type="button" class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('boulderTable');
+    }
+    function seedCompressor() {
+        const tbody = document.querySelector('#compressorTable tbody');
+        tbody.innerHTML = '';
+        const init = [['ABC Mining', 'XHP900', '90%', 'Drilling', '12', '240', '20']];
+        init.forEach(d => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>1</td><td><input value="${d[0]}"></td><td><input value="${d[1]}"></td><td><input value="${d[2]}"></td><td><input value="${d[3]}"></td><td><input value="${d[4]}"></td><td><input value="${d[5]}"></td><td><input value="${d[6]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('compressorTable');
+    }
+    function seedBlastingMaterial() {
+        const tbody = document.querySelector('#blastingMaterialTable tbody');
+        tbody.innerHTML = '';
+        const materials = ['Blaster', 'D Gruards', 'Elect Denorates', 'Nitrate', 'Non Elect Detonators', 'Power Gel', 'Wire'];
+        const openQtys = [100, 3830, 30, 100, 100, 122, 15];
+        materials.forEach((mat, idx) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${idx+1}</td><td><input value="${mat}"></td><td><input value="${openQtys[idx]}"></td><td><input value="0"></td><td><input value="${openQtys[idx]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('blastingMaterialTable');
+    }
+    function seedEquipment() {
+        const tbody = document.querySelector('#equipmentTable tbody');
+        tbody.innerHTML = '';
+        const eq = [['EX1200', 'Excavation', 'Loading', '08:00', '20:00', '01:30', '00:45', '12:00', '450', '07:55', '20:15']];
+        eq.forEach(e => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>1</td><td><input value="${e[0]}"></td><td><input value="${e[1]}"></td><td><input value="${e[2]}"></td><td><input value="${e[3]}"></td><td><input value="${e[4]}"></td><td><input value="${e[5]}"></td><td><input value="${e[6]}"></td><td><input value="${e[7]}"></td><td><input value="${e[8]}"></td><td><input value="${e[9]}"></td><td><input value="${e[10]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('equipmentTable');
+    }
+
+    // Maintenance seeding
+    function seedMaintenance() {
+        const tbody = document.querySelector('#maintenanceTable tbody');
+        tbody.innerHTML = '';
+        const maint = [['Excavator', 'CAT 345D', '4520', '4580', '60'], ['Tipper', 'Volvo FMX', '18700', '18820', '120']];
+        maint.forEach(m => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${tbody.children.length+1}</td><td><input value="${m[0]}"></td><td><input value="${m[1]}"></td><td><input value="${m[2]}"></td><td><input value="${m[3]}"></td><td><input value="${m[4]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('maintenanceTable');
+    }
+    function seedTipperDetails() {
+        const tbody = document.querySelector('#tipperDetailsTable tbody');
+        tbody.innerHTML = '';
+        const tips = [['Tipper-01', 'Minor Breakdown', '12450', '12510', '2026-05-15', '14:00', 'R. Sharma']];
+        tips.forEach(t => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>1</td><td><input value="${t[0]}"></td><td><input value="${t[1]}"></td><td><input value="${t[2]}"></td><td><input value="${t[3]}"></td><td><input value="${t[4]}"></td><td><input value="${t[5]}"></td><td><input value="${t[6]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('tipperDetailsTable');
+    }
+    function seedBoulderTransfer() {
+        const tbody = document.querySelector('#boulderTransferTable tbody');
+        tbody.innerHTML = '';
+        const trans = [['Tipper A', '12', '180'], ['Tipper B', '8', '112']];
+        trans.forEach(t => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${tbody.children.length+1}</td><td><input value="${t[0]}"></td><td><input value="${t[1]}"></td><td><input value="${t[2]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('boulderTransferTable');
+    }
+    function seedStockDetails() {
+        const tbody = document.querySelector('#stockDetailsTable tbody');
+        tbody.innerHTML = '';
+        const stocks = [
+            ['>300 MM', '0.00', '0.00', '0.00', '0.00', '0.00', '0.00'],
+            ['20 - 550 MM', '105888.69', '0.00', '0.00', '105888.69', '105888.69', '0.00'],
+            ['20 - 550 MM Secondary', '202789.91', '0.00', '0.00', '202789.91', '202789.91', '0.00']
+        ];
+        stocks.forEach(s => {
+            const row = document.createElement('tr');
+            row.innerHTML = `<td>${tbody.children.length+1}</td><td><input value="${s[0]}"></td><td><input value="${s[1]}"></td><td><input value="${s[2]}"></td><td><input value="${s[3]}"></td><td><input value="${s[4]}"></td><td><input value="${s[5]}"></td><td><input value="${s[6]}"></td><td><button class="action-btn" onclick="this.closest('tr').remove()"><i class="fas fa-trash"></i></button></td>`;
+            tbody.appendChild(row);
+        });
+        reindexTableRows('stockDetailsTable');
+    }
+
+    // attach adding events
+    document.getElementById('addBoulderBtn').onclick = () => addRowWithControls('boulderTable', null, ['Select Size', '0', '0'], 4);
+    document.getElementById('addCompressorBtn').onclick = () => addRowWithControls('compressorTable', null, ['Vendor X', 'Model A', '85%', 'Blasting', '10', '200', '18'], 8);
+    document.getElementById('addMaterialBtn').onclick = () => addRowWithControls('blastingMaterialTable', null, ['New Material', '0', '0', '0'], 5);
+    document.getElementById('addEquipmentBtn').onclick = () => addRowWithControls('equipmentTable', null, ['Dozer', 'Levelling', 'Bench', '07:00', '19:00', '01:00', '00:30', '11:00', '300', '06:55', '19:10'], 12);
+    document.getElementById('addMaintBtn').onclick = () => addRowWithControls('maintenanceTable', null, ['Drill', 'Sandvik', '3200', '3280', '80'], 6);
+    document.getElementById('addTipperBtn').onclick = () => addRowWithControls('tipperDetailsTable', null, ['New Tipper', 'Operational', '22000', '22100', '2026-05-18', '10:00', 'John'], 8);
+    document.getElementById('addBoulderTransferBtn').onclick = () => addRowWithControls('boulderTransferTable', null, ['Tipper C', '5', '75'], 4);
+    document.getElementById('addStockRowBtn').onclick = () => addRowWithControls('stockDetailsTable', null, ['New Size', '0', '0', '0', '0', '0', '0'], 8);
+
+    // preview and submit
+    document.getElementById('previewBtn').addEventListener('click', () => {
+        const formData = new FormData(document.getElementById('masterForm'));
+        console.log('Form integrated data (key fields):', Object.fromEntries(formData.entries()));
+        alert('Check developer console for data preview. All tables are live.');
+    });
+
+    document.getElementById('masterForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        alert('Mine & Maintenance data saved (demo). In real scenario, data could be sent to backend.');
+        console.log('Full integrated report submitted');
+    });
+
+    // seed all at load
+    window.onload = () => {
+        seedBoulder();
+        seedCompressor();
+        seedBlastingMaterial();
+        seedEquipment();
+        seedMaintenance();
+        seedTipperDetails();
+        seedBoulderTransfer();
+        seedStockDetails();
+    };
+</script>
+</body>
+</html>
